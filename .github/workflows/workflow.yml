@@ -30,52 +30,58 @@ jobs:
         env:
           GOFILE_LINK: ${{ github.event.inputs.gofile_link }}
         run: |
+          python -c "
           import requests
           import zipfile
           import os
 
-          # Download the zip file from gofile.io
-          response = requests.get(os.getenv('GOFILE_LINK'))
-          with open("input_files.zip", "wb") as file:
-              file.write(response.content)
+# Download the zip file from gofile.io
+response = requests.get(os.getenv('GOFILE_LINK'))
+with open('input_files.zip', 'wb') as file:
+    file.write(response.content)
 
-          # Unzip the file
-          with zipfile.ZipFile("input_files.zip", 'r') as zip_ref:
-              zip_ref.extractall("input_files")
-          os.remove("input_files.zip")
-          print("Downloaded and unzipped the input files.")
+# Unzip the file
+with zipfile.ZipFile('input_files.zip', 'r') as zip_ref:
+    zip_ref.extractall('input_files')
+os.remove('input_files.zip')
+print('Downloaded and unzipped the input files.')
+          "
 
       - name: Process JPG + MP3 to MP4
         run: |
-          from moviepy.editor import ImageClip, AudioFileClip
-          import glob
-          import os
+          python -c "
+from moviepy.editor import ImageClip, AudioFileClip
+import glob
+import os
 
-          os.makedirs("output_videos", exist_ok=True)
+os.makedirs('output_videos', exist_ok=True)
 
-          jpg_files = sorted(glob.glob("input_files/*.jpg"))
-          mp3_files = sorted(glob.glob("input_files/*.mp3"))
+jpg_files = sorted(glob.glob('input_files/*.jpg'))
+mp3_files = sorted(glob.glob('input_files/*.mp3'))
 
-          for jpg, mp3 in zip(jpg_files, mp3_files):
-              image_clip = ImageClip(jpg).set_duration(AudioFileClip(mp3).duration)
-              audio_clip = AudioFileClip(mp3)
-              video_clip = image_clip.set_audio(audio_clip)
+for jpg, mp3 in zip(jpg_files, mp3_files):
+    image_clip = ImageClip(jpg).set_duration(AudioFileClip(mp3).duration)
+    audio_clip = AudioFileClip(mp3)
+    video_clip = image_clip.set_audio(audio_clip)
 
-              # Output file name
-              output_file = os.path.join("output_videos", f"{os.path.basename(jpg).split('.')[0]}.mp4")
-              video_clip.write_videofile(output_file, codec="libx264", fps=24)
-              print(f"Created {output_file}")
+    # Output file name
+    output_file = os.path.join('output_videos', f'{os.path.basename(jpg).split('.')[0]}.mp4')
+    video_clip.write_videofile(output_file, codec='libx264', fps=24)
+    print(f'Created {output_file}')
+          "
 
       - name: Zip Output Files
         run: |
-          import zipfile
-          import os
+          python -c "
+import zipfile
+import os
 
-          with zipfile.ZipFile("output_videos.zip", 'w') as zipf:
-              for root, _, files in os.walk("output_videos"):
-                  for file in files:
-                      zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), "output_videos"))
-          print("Output files zipped successfully.")
+with zipfile.ZipFile('output_videos.zip', 'w') as zipf:
+    for root, _, files in os.walk('output_videos'):
+        for file in files:
+            zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), 'output_videos'))
+print('Output files zipped successfully.')
+          "
 
       - name: Upload Output Zip as Artifact
         uses: actions/upload-artifact@v3
