@@ -1,0 +1,39 @@
+name: JPG + MP3 to MP4 Processing
+
+on:
+  workflow_dispatch:
+    inputs:
+      gofile_link:
+        description: "Link to the zip file on gofile.io"
+        required: true
+        type: string
+
+jobs:
+  convert_files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests moviepy
+
+      - name: Download and Process Files
+        env:
+          GOFILE_LINK: ${{ github.event.inputs.gofile_link }}
+        run: |
+          python process_files.py
+
+      - name: Upload Output Zip as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: output_videos
+          path: output_videos.zip
