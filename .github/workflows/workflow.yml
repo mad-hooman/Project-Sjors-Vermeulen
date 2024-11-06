@@ -1,96 +1,30 @@
-name: JPG and MP3 to MP4 Conversion from Google Drive
+name: Combine and Upload to Google Drive
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  convert:
-    runs-on: ubuntu-latest
+  combine_and_upload:
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python environment and install dependencies
-      run: |
-        python3 -m venv venv
-        . venv/bin/activate
-        pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Configure Google OAuth credentials
-      env:
-        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      run: |
-        echo '{
-            "installed": {
-                "client_id": "'$GOOGLE_CLIENT_ID'",
-                "client_secret": "'$GOOGLE_CLIENT_SECRET'",
-                "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token"
-            }
-        }' > credentials.json
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Create Python script to download files
-      run: |
-        echo "from googleapiclient.discovery import build" > download_files.py
-        echo "from googleapiclient.http import MediaIoBaseDownload" >> download_files.py
-        echo "import io" >> download_files.py
-        echo "" >> download_files.py
-        echo "# Define file IDs for download" >> download_files.py
-        echo "files_to_download = {" >> download_files.py
-        echo "    'input.jpg': '14HX7c21qgJZuVXbIgXlJSMme5DtyZuAc'," >> download_files.py
-        echo "    'input.mp3': '1hvIgXoXxqiu3cPCl01oiSP24S6S1HJNI'" >> download_files.py
-        echo "}" >> download_files.py
-        echo "" >> download_files.py
-        echo "# Authenticate and initialize Drive API client" >> download_files.py
-        echo "service = build('drive', 'v3')" >> download_files.py
-        echo "" >> download_files.py
-        echo "# Download each file" >> download_files.py
-        echo "for file_name, file_id in files_to_download.items():" >> download_files.py
-        echo "    request = service.files().get_media(fileId=file_id)" >> download_files.py
-        echo "    file_io = io.FileIO(file_name, 'wb')" >> download_files.py
-        echo "    downloader = MediaIoBaseDownload(file_io, request)" >> download_files.py
-        echo "    done = False" >> download_files.py
-        echo "    while not done:" >> download_files.py
-        echo "        status, done = downloader.next_chunk()" >> download_files.py
-
-    - name: Run file download script
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: |
-        . venv/bin/activate
-        python3 download_files.py
-
-    - name: Install ffmpeg
-      run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-    - name: Combine JPG and MP3 to create MP4
-      run: |
-        . venv/bin/activate
-        ffmpeg -loop 1 -i input.jpg -i input.mp3 -c:v libx264 -c:a aac -shortest output.mp4
-
-    - name: Create Python script to upload MP4 to Google Drive
-      run: |
-        echo "from googleapiclient.discovery import build" > upload_file.py
-        echo "from googleapiclient.http import MediaFileUpload" >> upload_file.py
-        echo "" >> upload_file.py
-        echo "# Authenticate and initialize Drive API client" >> upload_file.py
-        echo "service = build('drive', 'v3')" >> upload_file.py
-        echo "" >> upload_file.py
-        echo "# Upload the output.mp4 to the specified folder" >> upload_file.py
-        echo "file_metadata = {" >> upload_file.py
-        echo "    'name': 'output.mp4'," >> upload_file.py
-        echo "    'mimeType': 'video/mp4'," >> upload_file.py
-        echo "    'parents': ['1dlnublR0oSB-AszlYfBtq_CKseffIZvm']  # Destination folder ID" >> upload_file.py
-        echo "}" >> upload_file.py
-        echo "media = MediaFileUpload('output.mp4', mimetype='video/mp4')" >> upload_file.py
-        echo "service.files().create(body=file_metadata, media_body=media, fields='id').execute()" >> upload_file.py
-
-    - name: Run file upload script
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: |
-        . venv/bin/activate
-        python3 upload_file.py
+      - name: Run combine and upload script
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          python combine_upload.py
