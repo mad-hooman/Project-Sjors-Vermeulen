@@ -13,8 +13,15 @@ def get_direct_download_link(gofile_link, account_token):
     response = requests.get(
         f"https://api.gofile.io/getContent?contentId={file_id}&token={account_token}"
     )
-    response_data = response.json()
     
+    try:
+        response_data = response.json()
+    except ValueError:
+        print("Error: Unable to parse JSON response from Gofile API")
+        print("Response status code:", response.status_code)
+        print("Response text:", response.text)
+        raise
+
     if response_data['status'] == 'ok':
         # Extract direct download link from API response
         return response_data['data']['contents'][file_id]['link']
