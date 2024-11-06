@@ -4,10 +4,30 @@ import os
 import glob
 from moviepy.editor import ImageClip, AudioFileClip
 
+# Function to get the direct download link from gofile.io
+def get_direct_download_link(gofile_link, account_token):
+    # Extract the file ID from the shared link
+    file_id = gofile_link.split("/")[-1]
+    
+    # Make an API request to get file info
+    response = requests.get(
+        f"https://api.gofile.io/getContent?contentId={file_id}&token={account_token}"
+    )
+    response_data = response.json()
+    
+    if response_data['status'] == 'ok':
+        # Extract direct download link from API response
+        return response_data['data']['contents'][file_id]['link']
+    else:
+        raise ValueError("Failed to retrieve direct download link from gofile.io")
+
 # Download and unzip files from gofile.io
-def download_and_unzip(gofile_link, extract_to="input_files"):
+def download_and_unzip(gofile_link, account_token, extract_to="input_files"):
+    # Get the direct download link using the API
+    direct_link = get_direct_download_link(gofile_link, account_token)
+    
     # Download the zip file
-    response = requests.get(gofile_link)
+    response = requests.get(direct_link, stream=True)
     zip_path = "input_files.zip"
     with open(zip_path, "wb") as file:
         file.write(response.content)
@@ -46,6 +66,7 @@ def zip_output_files(output_dir="output_videos", output_zip="output_videos.zip")
 # Main execution
 if __name__ == "__main__":
     gofile_link = os.getenv("GOFILE_LINK")
-    download_and_unzip(gofile_link)
+    account_token = os.getenv("GOFILE_API_TOKEN")
+    download_and_unzip(gofile_link, account_token)
     process_files()
     zip_output_files()

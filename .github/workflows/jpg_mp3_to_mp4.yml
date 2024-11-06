@@ -29,6 +29,7 @@ jobs:
       - name: Download and Process Files
         env:
           GOFILE_LINK: ${{ github.event.inputs.gofile_link }}
+          GOFILE_API_TOKEN: ${{ secrets.GOFILE_API_TOKEN }}
         run: |
           python process_files.py
 
