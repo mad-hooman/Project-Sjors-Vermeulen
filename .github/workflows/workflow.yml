@@ -1,9 +1,7 @@
 name: Combine and Upload to Google Drive
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   combine_and_upload:
