@@ -1,7 +1,9 @@
 name: Combine and Upload to Google Drive
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   combine_and_upload:
@@ -21,11 +23,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install jq
-        run: choco install jq
-
-      - name: Write Google credentials to file
-        run: echo "${{ secrets.GOOGLE_CREDENTIALS_B64 }}" | base64 -d > credentials.json
+      - name: Write Google credentials to file using PowerShell
+        shell: pwsh
+        run: |
+          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.GOOGLE_CREDENTIALS_B64 }}")) | Out-File -FilePath credentials.json -Encoding utf8
 
       - name: Run combine and upload script
         env:
