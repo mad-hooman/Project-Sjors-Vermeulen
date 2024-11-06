@@ -1,20 +1,15 @@
-name: Combine JPG and MP3 to MP4 with Google Drive User Auth
+name: JPG + MP3 to MP4 Processing
 
 on:
   workflow_dispatch:
     inputs:
-      jpg_file_id:
-        description: 'Google Drive File ID for the JPG'
+      gofile_link:
+        description: "Link to the zip file on gofile.io"
         required: true
-      mp3_file_id:
-        description: 'Google Drive File ID for the MP3'
-        required: true
-      output_folder_id:
-        description: 'Google Drive Folder ID for the output MP4'
-        required: true
+        type: string
 
 jobs:
-  combine:
+  convert_files:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,21 +19,66 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.9'
 
       - name: Install dependencies
         run: |
-          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+          python -m pip install --upgrade pip
+          pip install requests moviepy
 
-      - name: Upload client_id.json
+      - name: Download and unzip files from gofile.io
         env:
-          CLIENT_ID_JSON: ${{ secrets.CLIENT_ID_JSON }}
+          GOFILE_LINK: ${{ github.event.inputs.gofile_link }}
         run: |
-          echo "${CLIENT_ID_JSON}" > client_id.json
+          import requests
+          import zipfile
+          import os
 
-      - name: Run combine script
-        env:
-          JPG_FILE_ID: ${{ github.event.inputs.jpg_file_id }}
-          MP3_FILE_ID: ${{ github.event.inputs.mp3_file_id }}
-          OUTPUT_FOLDER_ID: ${{ github.event.inputs.output_folder_id }}
-        run: python combine_with_user_auth.py
+          # Download the zip file from gofile.io
+          response = requests.get(os.getenv('GOFILE_LINK'))
+          with open("input_files.zip", "wb") as file:
+              file.write(response.content)
+
+          # Unzip the file
+          with zipfile.ZipFile("input_files.zip", 'r') as zip_ref:
+              zip_ref.extractall("input_files")
+          os.remove("input_files.zip")
+          print("Downloaded and unzipped the input files.")
+
+      - name: Process JPG + MP3 to MP4
+        run: |
+          from moviepy.editor import ImageClip, AudioFileClip
+          import glob
+          import os
+
+          os.makedirs("output_videos", exist_ok=True)
+
+          jpg_files = sorted(glob.glob("input_files/*.jpg"))
+          mp3_files = sorted(glob.glob("input_files/*.mp3"))
+
+          for jpg, mp3 in zip(jpg_files, mp3_files):
+              image_clip = ImageClip(jpg).set_duration(AudioFileClip(mp3).duration)
+              audio_clip = AudioFileClip(mp3)
+              video_clip = image_clip.set_audio(audio_clip)
+
+              # Output file name
+              output_file = os.path.join("output_videos", f"{os.path.basename(jpg).split('.')[0]}.mp4")
+              video_clip.write_videofile(output_file, codec="libx264", fps=24)
+              print(f"Created {output_file}")
+
+      - name: Zip Output Files
+        run: |
+          import zipfile
+          import os
+
+          with zipfile.ZipFile("output_videos.zip", 'w') as zipf:
+              for root, _, files in os.walk("output_videos"):
+                  for file in files:
+                      zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), "output_videos"))
+          print("Output files zipped successfully.")
+
+      - name: Upload Output Zip as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: output_videos
+          path: output_videos.zip
