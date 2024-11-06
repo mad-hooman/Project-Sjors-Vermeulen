@@ -59,13 +59,17 @@ jobs:
     - name: Run file download script
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: python3 download_files.py
+      run: |
+        . venv/bin/activate
+        python3 download_files.py
 
     - name: Install ffmpeg
       run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
     - name: Combine JPG and MP3 to create MP4
-      run: ffmpeg -loop 1 -i input.jpg -i input.mp3 -c:v libx264 -c:a aac -shortest output.mp4
+      run: |
+        . venv/bin/activate
+        ffmpeg -loop 1 -i input.jpg -i input.mp3 -c:v libx264 -c:a aac -shortest output.mp4
 
     - name: Create Python script to upload MP4 to Google Drive
       run: |
@@ -87,4 +91,6 @@ jobs:
     - name: Run file upload script
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: python3 upload_file.py
+      run: |
+        . venv/bin/activate
+        python3 upload_file.py
