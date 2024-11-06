@@ -1,20 +1,17 @@
-name: Combine JPG and MP3 to MP4
+name: Combine JPG and MP3 to MP4 with Google Drive User Auth
 
 on:
   workflow_dispatch:
     inputs:
-      jpg_file:
-        description: 'Path to the JPG file'
+      jpg_file_id:
+        description: 'Google Drive File ID for the JPG'
         required: true
-        default: 'input.jpg'
-      mp3_file:
-        description: 'Path to the MP3 file'
+      mp3_file_id:
+        description: 'Google Drive File ID for the MP3'
         required: true
-        default: 'input.mp3'
-      output_file:
-        description: 'Path to the output MP4 file'
+      output_folder_id:
+        description: 'Google Drive Folder ID for the output MP4'
         required: true
-        default: 'output.mp4'
 
 jobs:
   combine:
@@ -29,15 +26,19 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install ffmpeg
-        run: sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: |
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      - name: Upload client_id.json
+        env:
+          CLIENT_ID_JSON: ${{ secrets.CLIENT_ID_JSON }}
+        run: |
+          echo "${CLIENT_ID_JSON}" > client_id.json
 
       - name: Run combine script
-        run: |
-          python combine.py "${{ github.event.inputs.jpg_file }}" "${{ github.event.inputs.mp3_file }}" "${{ github.event.inputs.output_file }}"
-
-      - name: Upload MP4 as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: combined_video
-          path: ${{ github.event.inputs.output_file }}
+        env:
+          JPG_FILE_ID: ${{ github.event.inputs.jpg_file_id }}
+          MP3_FILE_ID: ${{ github.event.inputs.mp3_file_id }}
+          OUTPUT_FOLDER_ID: ${{ github.event.inputs.output_folder_id }}
+        run: python combine_with_user_auth.py
