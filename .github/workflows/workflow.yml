@@ -15,7 +15,7 @@ jobs:
       run: |
         python3 -m venv venv
         . venv/bin/activate
-        pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client google-drive-downloader
+        pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
 
     - name: Configure Google OAuth credentials
       env:
@@ -47,7 +47,7 @@ jobs:
         }
 
         # Authenticate and initialize Drive API client
-        service = build('drive', 'v3', credentials=GOOGLE_APPLICATION_CREDENTIALS)
+        service = build('drive', 'v3')
 
         # Download each file
         for file_name, file_id in files_to_download.items():
@@ -72,7 +72,7 @@ jobs:
         from googleapiclient.http import MediaFileUpload
 
         # Authenticate and initialize Drive API client
-        service = build('drive', 'v3', credentials=GOOGLE_APPLICATION_CREDENTIALS)
+        service = build('drive', 'v3')
 
         # Upload the output.mp4 to the specified folder
         file_metadata = {
