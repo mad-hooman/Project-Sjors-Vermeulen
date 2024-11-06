@@ -32,34 +32,34 @@ jobs:
             }
         }' > credentials.json
 
-    - name: Authenticate and Download JPG/MP3 files from Google Drive
+    - name: Create Python script to download files
+      run: |
+        echo "from googleapiclient.discovery import build" > download_files.py
+        echo "from googleapiclient.http import MediaIoBaseDownload" >> download_files.py
+        echo "import io" >> download_files.py
+        echo "" >> download_files.py
+        echo "# Define file IDs for download" >> download_files.py
+        echo "files_to_download = {" >> download_files.py
+        echo "    'input.jpg': '14HX7c21qgJZuVXbIgXlJSMme5DtyZuAc'," >> download_files.py
+        echo "    'input.mp3': '1hvIgXoXxqiu3cPCl01oiSP24S6S1HJNI'" >> download_files.py
+        echo "}" >> download_files.py
+        echo "" >> download_files.py
+        echo "# Authenticate and initialize Drive API client" >> download_files.py
+        echo "service = build('drive', 'v3')" >> download_files.py
+        echo "" >> download_files.py
+        echo "# Download each file" >> download_files.py
+        echo "for file_name, file_id in files_to_download.items():" >> download_files.py
+        echo "    request = service.files().get_media(fileId=file_id)" >> download_files.py
+        echo "    file_io = io.FileIO(file_name, 'wb')" >> download_files.py
+        echo "    downloader = MediaIoBaseDownload(file_io, request)" >> download_files.py
+        echo "    done = False" >> download_files.py
+        echo "    while not done:" >> download_files.py
+        echo "        status, done = downloader.next_chunk()" >> download_files.py
+
+    - name: Run file download script
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: |
-        cat << 'EOF' > download_files.py
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-import io
-
-# Define file IDs for download
-files_to_download = {
-    "input.jpg": "14HX7c21qgJZuVXbIgXlJSMme5DtyZuAc",
-    "input.mp3": "1hvIgXoXxqiu3cPCl01oiSP24S6S1HJNI"
-}
-
-# Authenticate and initialize Drive API client
-service = build("drive", "v3")
-
-# Download each file
-for file_name, file_id in files_to_download.items():
-    request = service.files().get_media(fileId=file_id)
-    file_io = io.FileIO(file_name, "wb")
-    downloader = MediaIoBaseDownload(file_io, request)
-    done = False
-    while not done:
-        status, done = downloader.next_chunk()
-EOF
-        python3 download_files.py
+      run: python3 download_files.py
 
     - name: Install ffmpeg
       run: sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -67,24 +67,24 @@ EOF
     - name: Combine JPG and MP3 to create MP4
       run: ffmpeg -loop 1 -i input.jpg -i input.mp3 -c:v libx264 -c:a aac -shortest output.mp4
 
-    - name: Upload MP4 to Google Drive
+    - name: Create Python script to upload MP4 to Google Drive
+      run: |
+        echo "from googleapiclient.discovery import build" > upload_file.py
+        echo "from googleapiclient.http import MediaFileUpload" >> upload_file.py
+        echo "" >> upload_file.py
+        echo "# Authenticate and initialize Drive API client" >> upload_file.py
+        echo "service = build('drive', 'v3')" >> upload_file.py
+        echo "" >> upload_file.py
+        echo "# Upload the output.mp4 to the specified folder" >> upload_file.py
+        echo "file_metadata = {" >> upload_file.py
+        echo "    'name': 'output.mp4'," >> upload_file.py
+        echo "    'mimeType': 'video/mp4'," >> upload_file.py
+        echo "    'parents': ['1dlnublR0oSB-AszlYfBtq_CKseffIZvm']  # Destination folder ID" >> upload_file.py
+        echo "}" >> upload_file.py
+        echo "media = MediaFileUpload('output.mp4', mimetype='video/mp4')" >> upload_file.py
+        echo "service.files().create(body=file_metadata, media_body=media, fields='id').execute()" >> upload_file.py
+
+    - name: Run file upload script
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-      run: |
-        cat << 'EOF' > upload_file.py
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-
-# Authenticate and initialize Drive API client
-service = build("drive", "v3")
-
-# Upload the output.mp4 to the specified folder
-file_metadata = {
-    "name": "output.mp4",
-    "mimeType": "video/mp4",
-    "parents": ["1dlnublR0oSB-AszlYfBtq_CKseffIZvm"]  # Destination folder ID
-}
-media = MediaFileUpload("output.mp4", mimetype="video/mp4")
-service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-EOF
-        python3 upload_file.py
+      run: python3 upload_file.py
