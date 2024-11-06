@@ -1,16 +1,27 @@
-name: Combine and Upload to Google Drive
+name: Combine JPG and MP3 to MP4
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      jpg_file:
+        description: 'Path to the JPG file'
+        required: true
+        default: 'input.jpg'
+      mp3_file:
+        description: 'Path to the MP3 file'
+        required: true
+        default: 'input.mp3'
+      output_file:
+        description: 'Path to the output MP4 file'
+        required: true
+        default: 'output.mp4'
 
 jobs:
-  combine_and_upload:
-    runs-on: windows-latest
+  combine:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Python
@@ -18,18 +29,15 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
 
-      - name: Write Google credentials to file using PowerShell
-        shell: pwsh
+      - name: Run combine script
         run: |
-          [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.GOOGLE_CREDENTIALS_B64 }}")) | Out-File -FilePath credentials.json -Encoding utf8
+          python combine.py "${{ github.event.inputs.jpg_file }}" "${{ github.event.inputs.mp3_file }}" "${{ github.event.inputs.output_file }}"
 
-      - name: Run combine and upload script
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: credentials.json
-        run: |
-          python combine_upload.py
+      - name: Upload MP4 as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: combined_video
+          path: ${{ github.event.inputs.output_file }}
