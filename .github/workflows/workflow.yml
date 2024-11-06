@@ -1,4 +1,4 @@
-name: PNG and WAV to MP4 Conversion from Google Drive
+name: JPG and MP3 to MP4 Conversion from Google Drive
 
 on:
   workflow_dispatch:
@@ -21,9 +21,7 @@ jobs:
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
       run: |
-        # Create a credentials.json file based on secrets
         echo '{
             "installed": {
                 "client_id": "'$GOOGLE_CLIENT_ID'",
@@ -34,19 +32,18 @@ jobs:
             }
         }' > credentials.json
 
-    - name: Authenticate and Download PNG/WAV files from Google Drive
+    - name: Authenticate and Download JPG/MP3 files from Google Drive
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
       run: |
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaIoBaseDownload
         import io
-        import os
 
-        # Define file IDs (replace with actual file IDs from Google Drive)
+        # Define file IDs for download
         files_to_download = {
-            "input.png": "14HX7c21qgJZuVXbIgXlJSMme5DtyZuAc",
-            "input.wav": "1hvIgXoXxqiu3cPCl01oiSP24S6S1HJNI"
+            "input.jpg": "14HX7c21qgJZuVXbIgXlJSMme5DtyZuAc",
+            "input.mp3": "1hvIgXoXxqiu3cPCl01oiSP24S6S1HJNI"
         }
 
         # Authenticate and initialize Drive API client
@@ -64,20 +61,24 @@ jobs:
     - name: Install ffmpeg
       run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-    - name: Combine PNG and WAV to create MP4
-      run: ffmpeg -loop 1 -i input.png -i input.wav -c:v libx264 -c:a aac -shortest output.mp4
+    - name: Combine JPG and MP3 to create MP4
+      run: ffmpeg -loop 1 -i input.jpg -i input.mp3 -c:v libx264 -c:a aac -shortest output.mp4
 
     - name: Upload MP4 to Google Drive
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
       run: |
+        from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
 
-        # Upload the output.mp4 to Google Drive
+        # Authenticate and initialize Drive API client
+        service = build('drive', 'v3', credentials=GOOGLE_APPLICATION_CREDENTIALS)
+
+        # Upload the output.mp4 to the specified folder
         file_metadata = {
             'name': 'output.mp4',
             'mimeType': 'video/mp4',
-            'parents': ['1dlnublR0oSB-AszlYfBtq_CKseffIZvm']  # Replace with destination folder ID
+            'parents': ['1dlnublR0oSB-AszlYfBtq_CKseffIZvm']  # Destination folder ID
         }
         media = MediaFileUpload('output.mp4', mimetype='video/mp4')
         service.files().create(body=file_metadata, media_body=media, fields='id').execute()
