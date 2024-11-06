@@ -36,7 +36,7 @@ jobs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
       run: |
-        echo '
+        cat << 'EOF' > download_files.py
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import io
@@ -58,7 +58,7 @@ for file_name, file_id in files_to_download.items():
     done = False
     while not done:
         status, done = downloader.next_chunk()
-' > download_files.py
+EOF
         python3 download_files.py
 
     - name: Install ffmpeg
@@ -71,7 +71,7 @@ for file_name, file_id in files_to_download.items():
       env:
         GOOGLE_APPLICATION_CREDENTIALS: credentials.json
       run: |
-        echo '
+        cat << 'EOF' > upload_file.py
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
@@ -86,5 +86,5 @@ file_metadata = {
 }
 media = MediaFileUpload("output.mp4", mimetype="video/mp4")
 service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-' > upload_file.py
+EOF
         python3 upload_file.py
