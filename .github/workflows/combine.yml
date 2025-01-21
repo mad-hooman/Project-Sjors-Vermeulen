@@ -19,7 +19,7 @@ jobs:
     #     uses: actions/checkout@v3
 
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev build-essential libjpeg-dev zlib1g-dev libjpeg8-dev libfreetype6-dev && pip3 install pandas openpyxl moviepy pillow gdown
+        run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev build-essential libjpeg-dev zlib1g-dev libjpeg8-dev libfreetype6-dev && pip3 install pandas openpyxl moviepy pillow gdown ffmpeg imagemagick
 
       - name: Download Input File
         run: | 
@@ -54,7 +54,7 @@ jobs:
       - name: Combine Clips
         run: |
           cd App
-          ls
+          python3 App_ffmpeg_raw.py
 
     #   # Step 4: Install Python and dependencies
     #   - name: Set up Python environment
