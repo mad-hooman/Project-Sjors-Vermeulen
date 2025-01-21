@@ -5,7 +5,7 @@ on:
     inputs:
       input_zip_link:
         description: "Input ZIP file link"
-        required: true
+        required: false
         type: string
 
 jobs:
@@ -14,61 +14,68 @@ jobs:
 
     steps:
       # Step 1: Checkout the repository
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    #   - name: Checkout Repository
+    #     uses: actions/checkout@v3
 
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev build-essential libjpeg-dev zlib1g-dev libjpeg8-dev libfreetype6-dev && pip3 install pandas openpyxl moviepy pillow gdown
 
-      - name: Extract File ID from Input Link
-        id: extract_id
-        run: |
-          echo "Input Google Drive link: ${{ github.event.inputs.input_zip_link }}"
-          
-          # Extract the file ID using regex
-          if [[ "${{ github.event.inputs.input_zip_link }}" =~ /d/([a-zA-Z0-9_-]{33,}) ]]; then
-            file_id="${BASH_REMATCH[1]}"
-            echo "File ID extracted: $file_id"
-            echo "file_id=$file_id" >> $GITHUB_ENV
-          else
-            echo "Error: Invalid Google Drive link provided."
-            exit 1
-          fi
-
-      # Step 2: Download input.zip using the provided link
       - name: Download Input File
-        run: |
-          cd 
-          gdown -id ${{ steps.extract_id.outputs.file_id }}"
+        run: | 
+          gdown -id 1TMfBdJ-C323M3sIYoZbYspsQ27E1gVRl
+          unzip PNG+WAV.zip
+          cd PNG+WAV
+          ls
 
-      # Step 3: Unzip the downloaded file
-      - name: Unzip Input File
-        run: |
-          unzip input.zip -d input_files
+    #   - name: Extract File ID from Input Link
+    #     id: extract_id
+    #     run: |
+    #       echo "Input Google Drive link: ${{ github.event.inputs.input_zip_link }}"
+          
+    #       # Extract the file ID using regex
+    #       if [[ "${{ github.event.inputs.input_zip_link }}" =~ /d/([a-zA-Z0-9_-]{33,}) ]]; then
+    #         file_id="${BASH_REMATCH[1]}"
+    #         echo "File ID extracted: $file_id"
+    #         echo "file_id=$file_id" >> $GITHUB_ENV
+    #       else
+    #         echo "Error: Invalid Google Drive link provided."
+    #         exit 1
+    #       fi
 
-      # Step 4: Install Python and dependencies
-      - name: Set up Python environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    #   # Step 2: Download input.zip using the provided link
+    #   - name: Download Input File
+    #     run: |
+    #       cd 
+    #       gdown -id ${{ steps.extract_id.outputs.file_id }}
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+    #   # Step 3: Unzip the downloaded file
+    #   - name: Unzip Input File
+    #     run: |
+    #       unzip input.zip -d input_files
 
-      # Step 5: Execute the Python script
-      - name: Combine PNG and WAV
-        run: |
-          python combine.py input_files output
+    #   # Step 4: Install Python and dependencies
+    #   - name: Set up Python environment
+    #     uses: actions/setup-python@v4
+    #     with:
+    #       python-version: '3.x'
 
-      # Step 6: Archive the output folder
-      - name: Archive Output
-        run: |
-          zip -r output.zip output
+    #   - name: Install Dependencies
+    #     run: |
+    #       pip install -r requirements.txt
 
-      # Step 7: Upload the output as an artifact
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: combined-clips
-          path: output.zip
+    #   # Step 5: Execute the Python script
+    #   - name: Combine PNG and WAV
+    #     run: |
+    #       python combine.py input_files output
+
+    #   # Step 6: Archive the output folder
+    #   - name: Archive Output
+    #     run: |
+    #       zip -r output.zip output
+
+    #   # Step 7: Upload the output as an artifact
+    #   - name: Upload Artifact
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: combined-clips
+    #       path: output.zip
