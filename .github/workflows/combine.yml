@@ -39,7 +39,7 @@ jobs:
       - name: Download Input File
         run: |
           cd 
-          gdown -id ${{ env.file_id }}"
+          gdown -id ${{ steps.extract_id.outputs.file_id }}"
 
       # Step 3: Unzip the downloaded file
       - name: Unzip Input File

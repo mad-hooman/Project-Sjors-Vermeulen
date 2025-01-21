@@ -30,4 +30,4 @@ jobs:
 
       - name: Output Extracted File ID
         run: |
-          echo "The extracted file ID is: ${{ env.file_id }}"
+          echo "The extracted file ID is: ${{ steps.extract_id.outputs.file_id }}"
