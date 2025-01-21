@@ -1,40 +1,33 @@
-name: JPG + MP3 to MP4 Processing
+name: Extract Google Drive File ID
 
 on:
   workflow_dispatch:
     inputs:
-      gofile_link:
-        description: "Link to the zip file on gofile.io"
+      gdrive_link:
+        description: "Google Drive link"
         required: true
         type: string
 
 jobs:
-  convert_files:
+  extract-file-id:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
+      - name: Extract File ID from Input Link
+        id: extract_id
         run: |
-          python -m pip install --upgrade pip
-          pip install requests moviepy
+          echo "Input Google Drive link: ${{ github.event.inputs.gdrive_link }}"
+          
+          # Extract the file ID using regex
+          if [[ "${{ github.event.inputs.gdrive_link }}" =~ /d/([a-zA-Z0-9_-]{33,}) ]]; then
+            file_id="${BASH_REMATCH[1]}"
+            echo "File ID extracted: $file_id"
+            echo "file_id=$file_id" >> $GITHUB_ENV
+          else
+            echo "Error: Invalid Google Drive link provided."
+            exit 1
+          fi
 
-      - name: Download and Process Files
-        env:
-          GOFILE_LINK: ${{ github.event.inputs.gofile_link }}
-          GOFILE_API_TOKEN: ${{ secrets.GOFILE_API_TOKEN }}
+      - name: Output Extracted File ID
         run: |
-          python process_files.py
-
-      - name: Upload Output Zip as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: output_videos
-          path: output_videos.zip
+          echo "The extracted file ID is: ${{ env.file_id }}"
