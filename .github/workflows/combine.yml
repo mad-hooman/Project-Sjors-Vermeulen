@@ -46,7 +46,7 @@ jobs:
       - name: Download Input File
         run: |
           cd Video.tmp
-          gdown --id ${{ steps.extract_id.outputs.file_id }}
+          gdown --id ${{ env.file_id }}
           unzip input.zip
           ls
 
