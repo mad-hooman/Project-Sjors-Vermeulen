@@ -1,0 +1,14 @@
+name: JPG + MP3 to MP4 Processing
+
+on:
+  workflow_dispatch:
+
+
+
+jobs:
+  convert_files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
