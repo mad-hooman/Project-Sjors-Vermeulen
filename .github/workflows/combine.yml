@@ -22,7 +22,7 @@ jobs:
 
       - name: Download Input File
         run: | 
-          gdown -id 1TMfBdJ-C323M3sIYoZbYspsQ27E1gVRl
+          gdown --id 1TMfBdJ-C323M3sIYoZbYspsQ27E1gVRl
           unzip PNG+WAV.zip
           cd PNG+WAV
           ls
