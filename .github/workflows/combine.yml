@@ -48,13 +48,12 @@ jobs:
           cd Video.tmp
           gdown --id ${{ env.file_id }}
           unzip input.zip
+
+      # Step 3: Unzip the downloaded file
+      - name: Combine Clips
+        run: |
+          cd ../App
           ls
-
-
-    #   # Step 3: Unzip the downloaded file
-    #   - name: Unzip Input File
-    #     run: |
-    #       unzip input.zip -d input_files
 
     #   # Step 4: Install Python and dependencies
     #   - name: Set up Python environment
