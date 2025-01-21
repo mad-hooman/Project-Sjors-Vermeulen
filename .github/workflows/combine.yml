@@ -24,7 +24,6 @@ jobs:
         run: | 
           gdown --id 1TMfBdJ-C323M3sIYoZbYspsQ27E1gVRl
           unzip PNG+WAV.zip
-          cd PNG+WAV
           ls
 
     #   - name: Extract File ID from Input Link
