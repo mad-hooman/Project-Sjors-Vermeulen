@@ -25,27 +25,31 @@ jobs:
           gdown --id 1TMfBdJ-C323M3sIYoZbYspsQ27E1gVRl
           unzip PNG+WAV.zip
           ls
+          rm PNG+WAV.zip 
 
-    #   - name: Extract File ID from Input Link
-    #     id: extract_id
-    #     run: |
-    #       echo "Input Google Drive link: ${{ github.event.inputs.input_zip_link }}"
+      - name: Extract File ID from Input Link
+        id: extract_id
+        run: |
+          echo "Input Google Drive link: ${{ github.event.inputs.input_zip_link }}"
           
-    #       # Extract the file ID using regex
-    #       if [[ "${{ github.event.inputs.input_zip_link }}" =~ /d/([a-zA-Z0-9_-]{33,}) ]]; then
-    #         file_id="${BASH_REMATCH[1]}"
-    #         echo "File ID extracted: $file_id"
-    #         echo "file_id=$file_id" >> $GITHUB_ENV
-    #       else
-    #         echo "Error: Invalid Google Drive link provided."
-    #         exit 1
-    #       fi
+          # Extract the file ID using regex
+          if [[ "${{ github.event.inputs.input_zip_link }}" =~ /d/([a-zA-Z0-9_-]{33,}) ]]; then
+            file_id="${BASH_REMATCH[1]}"
+            echo "File ID extracted: $file_id"
+            echo "file_id=$file_id" >> $GITHUB_ENV
+          else
+            echo "Error: Invalid Google Drive link provided."
+            exit 1
+          fi
 
-    #   # Step 2: Download input.zip using the provided link
-    #   - name: Download Input File
-    #     run: |
-    #       cd 
-    #       gdown -id ${{ steps.extract_id.outputs.file_id }}
+      # Step 2: Download input.zip using the provided link
+      - name: Download Input File
+        run: |
+          cd Video.tmp
+          gdown -id ${{ steps.extract_id.outputs.file_id }}
+          unzip input.zip
+          ls
+
 
     #   # Step 3: Unzip the downloaded file
     #   - name: Unzip Input File
