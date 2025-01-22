@@ -7,7 +7,7 @@ on:
         description: "Input ZIP file link"
         required: false
         type: string
-        default: https://drive.google.com/file/d/1tDZx6Ct-dkIqJ_a7pk3-jbrnCvjr2OG7/view?usp=sharing
+        default: https://drive.google.com/file/d/1hRheLfqqqf01nMzkb4TOGdowbnjQgrdB/view?usp=drive_link
 
 jobs:
   combine-png-wav:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Download Input File
         run: | 
-          gdown --id 1J-QWKNEn7-WQUlDGnFfl-ryNAA0Ifpcj
+          gdown --id 1PDJ05Bepn0Nxkxl5HDh0mGsVZ9sykXQV
           unzip PNG+WAV.zip
           ls
           rm PNG+WAV.zip 
@@ -59,29 +59,14 @@ jobs:
           cd App
           python3 App_ffmpeg_raw1.py
 
-    #   # Step 4: Install Python and dependencies
-    #   - name: Set up Python environment
-    #     uses: actions/setup-python@v4
-    #     with:
-    #       python-version: '3.x'
-
-    #   - name: Install Dependencies
-    #     run: |
-    #       pip install -r requirements.txt
-
-    #   # Step 5: Execute the Python script
-    #   - name: Combine PNG and WAV
-    #     run: |
-    #       python combine.py input_files output
-
-    #   # Step 6: Archive the output folder
-    #   - name: Archive Output
-    #     run: |
-    #       zip -r output.zip output
-
-    #   # Step 7: Upload the output as an artifact
-    #   - name: Upload Artifact
-    #     uses: actions/upload-artifact@v3
-    #     with:
-    #       name: combined-clips
-    #       path: output.zip
+      - name: Zip the folder
+        run: |
+          cd PNG+WAV
+          zip -r Output.zip ./Output.tmp
+  
+        # Step 4: Upload the zip file as an artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: Delivery
+            path: Output.zip
