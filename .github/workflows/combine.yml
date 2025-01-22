@@ -57,7 +57,7 @@ jobs:
         run: |
           cd PNG+WAV
           cd App
-          python3 App_ffmpeg_raw1.py
+          python3 App_ffmpeg_raw.py
 
       - name: Zip the folder
         run: |
