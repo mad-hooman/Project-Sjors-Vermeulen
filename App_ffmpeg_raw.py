@@ -95,8 +95,8 @@ def export_videos(image, audio, output, vc=CODEC, ac="aac", bitrate=None, fps=No
     ] + ffmpeg_i_args + more + [output])
 
 def main():
-    AUDIOS = [i for i in os.scandir(VIDEOS_FOLDER) if mimetypes.guess_type(i.name) and mimetypes.guess_type(i.name)[0].startswith("audio")]
-    IMAGES = [i for i in os.scandir(VIDEOS_FOLDER) if mimetypes.guess_type(i.name) and mimetypes.guess_type(i.name)[0].startswith("image")]
+    AUDIOS = [i for i in os.scandir(VIDEOS_FOLDER) if mimetypes.guess_type(i.name)[0] and mimetypes.guess_type(i.name)[0].startswith("audio")]
+    IMAGES = [i for i in os.scandir(VIDEOS_FOLDER) if mimetypes.guess_type(i.name)[0] and mimetypes.guess_type(i.name)[0].startswith("image")]
 
     for audio in AUDIOS:
         code = re.search(r"(\d+)", audio.name).group(1)
