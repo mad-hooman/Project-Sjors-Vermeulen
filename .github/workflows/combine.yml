@@ -71,4 +71,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
             name: Delivery
-            path: Output.zip
+            path: PNG+WAV/Output.zip
