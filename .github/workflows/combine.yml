@@ -57,7 +57,7 @@ jobs:
         run: |
           cd PNG+WAV
           cd App
-          python3 App_ffmpeg_raw.py
+          python3 App_ffmpeg_raw1.py
 
     #   # Step 4: Install Python and dependencies
     #   - name: Set up Python environment
