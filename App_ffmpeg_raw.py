@@ -134,4 +134,4 @@ if __name__ == "__main__":
         traceback.print_exc()
 
     shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
-    input("\n\nPress Enter to Exit...")
+
