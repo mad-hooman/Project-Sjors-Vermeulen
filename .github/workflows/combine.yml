@@ -60,7 +60,6 @@ jobs:
       # Step 3: Unzip the downloaded file
       - name: Combine Clips
         run: |
-          rm ./PNG+WAV/App/App_ffmpeg_raw.py
           cp App_ffmpeg_raw.py ./PNG+WAV/App
           cd PNG+WAV
           cd App
