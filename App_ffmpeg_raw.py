@@ -129,7 +129,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        xprint("\n\n/g/All Parts are processed!/=/\n")
+        xprint("\n\n/g/All Parts are mano processed!/=/\n")
     except Exception:
         traceback.print_exc()
 
