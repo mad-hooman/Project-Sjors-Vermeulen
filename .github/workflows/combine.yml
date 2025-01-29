@@ -47,6 +47,7 @@ jobs:
           cd Video.tmp
           gdown --id $file_id
           unzip input.zip
+          ls
 
       # Step 2: Download input.zip using the provided link
       # - name: Download Input File
