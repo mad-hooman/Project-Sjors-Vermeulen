@@ -65,6 +65,7 @@ jobs:
           cp App_ffmpeg_raw.py ./PNG+WAV/App
           cd PNG+WAV
           cd App
+          ls
           python3 App_ffmpeg_raw.py
 
       - name: Zip the folder
