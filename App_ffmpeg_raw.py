@@ -12,7 +12,7 @@ from print_text3 import xprint
 
 BIN_FOLDER = "./bin.tmp"
 OUTPUT_FOLDER = "../Output.tmp"
-VIDEOS_FOLDER = "../Video.tmp/input"
+VIDEOS_FOLDER = "../Video.tmp"
 TEMP_FOLDER = "../Temp.tmp"
 
 os.environ['FFMPEG_BINARY'] = "ffmpeg"
