@@ -7,7 +7,7 @@ on:
         description: "Input ZIP file link"
         required: false
         type: string
-        default: https://drive.google.com/file/d/1hRheLfqqqf01nMzkb4TOGdowbnjQgrdB/view?usp=drive_link
+
 
 jobs:
   combine-png-wav:
