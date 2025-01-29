@@ -49,13 +49,13 @@ jobs:
           unzip input.zip
 
       # Step 2: Download input.zip using the provided link
-      - name: Download Input File
-        run: |
-          ls
-          cd PNG+WAV
-          cd Video.tmp
-          gdown --id ${{ env.file_id }}
-          unzip input.zip
+      # - name: Download Input File
+      #   run: |
+      #     ls
+      #     cd PNG+WAV
+      #     cd Video.tmp
+      #     gdown --id ${{ env.file_id }}
+      #     unzip input.zip
 
       # Step 3: Unzip the downloaded file
       - name: Combine Clips
