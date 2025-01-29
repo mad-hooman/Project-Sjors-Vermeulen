@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev build-essential libjpeg-dev zlib1g-dev libjpeg8-dev libfreetype6-dev ffmpeg imagemagick && pip3 install pandas openpyxl moviepy pillow gdown
 
-      - name: Download Input File
+      - name: Download Code File
         run: | 
           gdown --id 1PDJ05Bepn0Nxkxl5HDh0mGsVZ9sykXQV
           unzip PNG+WAV.zip
