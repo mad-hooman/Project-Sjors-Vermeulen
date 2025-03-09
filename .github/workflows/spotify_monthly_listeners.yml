@@ -1,0 +1,25 @@
+#Get the Monthly Listeners of an Artist on Spotify
+name: Monthly Listeners
+
+on:
+  workflow_dispatch:
+
+jobs:
+    get-listeners:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: '3.x'
+            - name: Download HTML Page
+              run: |
+                  curl -o ./Spotify-Artist/artist.html https://open.spotify.com/artist/23xFbA9rYgRX8mreqysWPc?si=6smbBM0CSXm9B0_TCoBDeA
+
+            - name: Get Monthly Listeners
+              run: |
+                  python3 ./Spotify-Artist/get-monthly-listeners.py
+            
