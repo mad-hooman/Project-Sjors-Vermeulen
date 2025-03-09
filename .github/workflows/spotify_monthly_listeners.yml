@@ -21,5 +21,6 @@ jobs:
 
             - name: Get Monthly Listeners
               run: |
+                  pip3 install beautifulsoup4
                   python3 ./Spotify-Artist/get-monthly-listeners.py
             
